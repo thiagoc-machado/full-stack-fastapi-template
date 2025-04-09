@@ -1,10 +1,11 @@
 import uuid
 from typing import Any
+from typing import Optional
 
 from sqlmodel import Session, select
 
 from app.core.security import get_password_hash, verify_password
-from app.models import Item, ItemCreate, User, UserCreate, UserUpdate
+from app.models import Item, ItemCreate, User, UserCreate, UserUpdate, Product, ProductCreate, ProductUpdate
 
 
 def create_user(*, session: Session, user_create: UserCreate) -> User:
@@ -52,3 +53,30 @@ def create_item(*, session: Session, item_in: ItemCreate, owner_id: uuid.UUID) -
     session.commit()
     session.refresh(db_item)
     return db_item
+
+
+def get_product(db: Session, product_id: str) -> Optional[Product]:
+    return db.get(Product, product_id)
+
+def get_products(db: Session, skip: int = 0, limit: int = 100) -> list[Product]:
+    return db.exec(select(Product).offset(skip).limit(limit)).all()
+
+def create_product(db: Session, product_in: ProductCreate) -> Product:
+    product = Product.model_validate(product_in)
+    db.add(product)
+    db.commit()
+    db.refresh(product)
+    return product
+
+def update_product(db: Session, db_obj: Product, product_in: ProductUpdate) -> Product:
+    update_data = product_in.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(db_obj, key, value)
+    db.add(db_obj)
+    db.commit()
+    db.refresh(db_obj)
+    return db_obj
+
+def delete_product(db: Session, db_obj: Product) -> None:
+    db.delete(db_obj)
+    db.commit()

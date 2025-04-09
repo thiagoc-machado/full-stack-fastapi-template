@@ -111,3 +111,27 @@ class TokenPayload(SQLModel):
 class NewPassword(SQLModel):
     token: str
     new_password: str = Field(min_length=8, max_length=40)
+
+import uuid
+from sqlmodel import SQLModel, Field
+
+class ProductBase(SQLModel):
+    name: str = Field(max_length=255)
+    description: str | None = Field(default=None, max_length=255)
+    price: float = Field(gt=0)
+    quantity: int = Field(gt=0)
+    category: str = Field(max_length=255)
+
+class ProductCreate(ProductBase):
+    pass
+
+class ProductUpdate(SQLModel):
+    name: str | None = Field(default=None, max_length=255)
+    description: str | None = Field(default=None, max_length=255)
+    price: float | None = Field(default=None, gt=0)
+    quantity: int | None = Field(default=None, gt=0)
+    category: str | None = Field(default=None, max_length=255)
+
+class Product(ProductBase, table=True):
+    __tablename__ = 'product'
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
