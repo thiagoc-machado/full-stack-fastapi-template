@@ -53,8 +53,8 @@ const EditProduct = ({ product }: EditProductProps) => {
   })
 
   const mutation = useMutation({
-    mutationFn: ({ id, ...data }: Product) =>
-      ProductsService.updateProduct({ id, requestBody: data }),
+    mutationFn: (data: { productId: string; requestBody: Omit<Product, 'id'> }) =>
+      ProductsService.updateProduct(data),
     onSuccess: () => {
       showSuccessToast('Producto actualizado correctamente.')
       reset()
@@ -67,10 +67,10 @@ const EditProduct = ({ product }: EditProductProps) => {
       queryClient.invalidateQueries({ queryKey: ['products'] })
     },
   })
-
+  
   const onSubmit: SubmitHandler<Omit<Product, 'id'>> = (data) => {
     console.log('Enviando ID:', product.id)
-    mutation.mutate({ ...data, id: product.id })
+    mutation.mutate({ productId: product.id, requestBody: data })
   }
 
   return (

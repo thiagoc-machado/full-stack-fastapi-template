@@ -30,7 +30,8 @@ const DeleteProduct = ({ id }: DeleteProductProps) => {
   const { handleSubmit, formState: { isSubmitting } } = useForm()
 
   const mutation = useMutation({
-    mutationFn: () => ProductsService.deleteProduct,
+    mutationFn: (productId: string) =>
+      ProductsService.deleteProduct({ productId }),
     onSuccess: () => {
       showSuccessToast('El producto fue eliminado correctamente.')
       setIsOpen(false)
