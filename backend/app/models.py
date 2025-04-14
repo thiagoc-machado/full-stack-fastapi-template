@@ -2,7 +2,12 @@ import uuid
 
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel
+from datetime import datetime
 
+from typing import TYPE_CHECKING, List, Optional
+
+if TYPE_CHECKING:
+    from app.domain.affirmation.models import Affirmation
 
 # Shared properties
 class UserBase(SQLModel):
@@ -44,6 +49,8 @@ class User(UserBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
     items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True)
+
+    affirmations: List['Affirmation'] = Relationship(back_populates='user')
 
 
 # Properties to return via API, id is always required
@@ -112,15 +119,13 @@ class NewPassword(SQLModel):
     token: str
     new_password: str = Field(min_length=8, max_length=40)
 
-import uuid
-from sqlmodel import SQLModel, Field
-
 class ProductBase(SQLModel):
     name: str = Field(max_length=255)
     description: str | None = Field(default=None, max_length=255)
     price: float = Field(gt=0)
     quantity: int = Field(gt=0)
     category: str = Field(max_length=255)
+    created_at: datetime | None = None
 
 class ProductCreate(ProductBase):
     pass
@@ -135,3 +140,4 @@ class ProductUpdate(SQLModel):
 class Product(ProductBase, table=True):
     __tablename__ = 'product'
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    created_at: datetime = Field(default_factory=datetime.now)
