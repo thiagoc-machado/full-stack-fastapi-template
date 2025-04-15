@@ -1,5 +1,8 @@
 from fastapi import APIRouter, Depends
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from uuid import UUID
+
 from app.api.deps import get_db
 from app.domain.affirmation.factory import create_affirmation
 from app.models import Affirmation
@@ -23,18 +26,20 @@ def read_affirmation(affirmation_id: str, db: Session = Depends(get_db)):
     return db.query(Affirmation).get(affirmation_id)
 
 @router.put('/affirmations/{affirmation_id}')
-def update_affirmation(affirmation_id: str, text: str, db: Session = Depends(get_db)):
-    affirmation = db.query(Affirmation).get(affirmation_id)
+def update_affirmation(affirmation_id: UUID, text: str, db: Session = Depends(get_db)):
+    affirmation = db.query(Affirmation).filter(Affirmation.id == affirmation_id).first()
     if affirmation:
         affirmation.text = text
         db.commit()
         db.refresh(affirmation)
-    return affirmation
+        return affirmation
+    raise HTTPException(status_code=404, detail='Affirmation not found')
 
 @router.delete('/affirmations/{affirmation_id}')
-def delete_affirmation(affirmation_id: str, db: Session = Depends(get_db)):
-    affirmation = db.query(Affirmation).get(affirmation_id)
+def delete_affirmation(affirmation_id: UUID, db: Session = Depends(get_db)):
+    affirmation = db.query(Affirmation).filter(Affirmation.id == affirmation_id).first()
     if affirmation:
         db.delete(affirmation)
         db.commit()
-    return {'ok': True}
+        return {str(affirmation_id): 'Deleted'}
+    raise HTTPException(status_code=404, detail='Affirmation not found')
