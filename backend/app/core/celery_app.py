@@ -1,5 +1,6 @@
 from celery import Celery
 from app.core.config import settings
+from app.core.beat_schedule import CELERY_BEAT_SCHEDULE
 
 celery_app = Celery(
     'worker',
@@ -8,3 +9,5 @@ celery_app = Celery(
 )
 
 celery_app.autodiscover_tasks(['app.tasks'])
+celery_app.conf.beat_schedule = CELERY_BEAT_SCHEDULE
+import app.tasks.affirmation
