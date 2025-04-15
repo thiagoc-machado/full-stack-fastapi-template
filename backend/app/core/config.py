@@ -1,6 +1,7 @@
 import secrets
 import warnings
 from typing import Annotated, Any, Literal
+from pydantic import Field
 
 from pydantic import (
     AnyUrl,
@@ -37,6 +38,9 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
     FRONTEND_HOST: str = "http://localhost:5173"
     ENVIRONMENT: Literal["local", "staging", "production"] = "local"
+
+    CELERY_BROKER_URL: str = Field(..., env='CELERY_BROKER_URL')
+    CELERY_RESULT_BACKEND: str = Field(..., env='CELERY_RESULT_BACKEND')
 
     BACKEND_CORS_ORIGINS: Annotated[
         list[AnyUrl] | str, BeforeValidator(parse_cors)

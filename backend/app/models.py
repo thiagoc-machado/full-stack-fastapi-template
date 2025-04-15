@@ -3,6 +3,7 @@ import uuid
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel
 from datetime import datetime
+from app.domain.affirmation.models import Affirmation, UserPreferences
 
 from typing import TYPE_CHECKING, List, Optional
 
@@ -140,4 +141,4 @@ class ProductUpdate(SQLModel):
 class Product(ProductBase, table=True):
     __tablename__ = 'product'
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    created_at: datetime = Field(default_factory=datetime.now)
+    created_at: Optional[datetime] = Field(default_factory=datetime.now)
